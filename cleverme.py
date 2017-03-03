@@ -18,6 +18,7 @@ storage = redis.StrictRedis(host=redis_host, port=redis_port, db=redis_db)
 
 
 def weighted_choice(choices):
+	# Source: http://stackoverflow.com/questions/3679694/a-weighted-version-of-random-choice/3679747#3679747
     values, weights = zip(*choices)
     total = 0
     cum_weights = []
