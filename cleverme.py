@@ -156,6 +156,6 @@ while True:
         if not error:
             slack_message(result)
             save(storage=storage)  # save current conversation
-            nap_time(energy, last_restore)
+            energy, last_restore = nap_time(energy, last_restore)
     else:
         time.sleep(3)
