@@ -22,7 +22,7 @@ Running //Testing
 
 Running //Ubuntu Install
         crontab -e
-        @reboot nohup python /home/cleverme/cleverme/main.py
+        @reboot nohup python /home/cleverme/cleverme/cleverme.py
         CLTR+X, press Y, then press Enter
 
 Install #Note: You will need to edit config.py with the necessary information.
