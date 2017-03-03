@@ -18,10 +18,11 @@ Install //Ubuntu || Assuming you are logged in as root
         nano config.py
 
 Running //Testing
-        python main.py
+        python cleverme.py
 
 Running //Ubuntu Install
         crontab -e
+		//add to the bottom of the crontab file the following line://
         @reboot nohup python /home/cleverme/cleverme/cleverme.py
         CLTR+X, press Y, then press Enter
 
