@@ -1,7 +1,3 @@
-# Author: ix HellFire
-# Website: http://dev.hellfire.it/
-# Support: https://dev-hell.slack.com/
-# Version: 1.0
 from cleverwrap import CleverWrap
 from slackclient import SlackClient
 import clever
@@ -18,7 +14,7 @@ storage = redis.StrictRedis(host=redis_host, port=redis_port, db=redis_db)
 
 
 def weighted_choice(choices):
-	# Source: http://stackoverflow.com/questions/3679694/a-weighted-version-of-random-choice/3679747#3679747
+	# https://stackoverflow.com/questions/3679694/a-weighted-version-of-random-choice/3679747#3679747
     values, weights = zip(*choices)
     total = 0
     cum_weights = []

@@ -58,7 +58,7 @@ SOFTWARE.
 
 ################################################################################
 
-clerver.py
+clever.py
 
 Python wrapper for Cleverbot.io API
 https://github.com/bvanrijn/clever
