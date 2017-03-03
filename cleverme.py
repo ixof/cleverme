@@ -90,13 +90,12 @@ def cb_ask(msg, wdym_sent):
         msg_wdym = 'You will have to explain things to me when I do not reply.'
         if id is 0:
             try:
-                result = client[id].say(msg)
+                result = client[0].say(msg)
             except:
                 result = client[1].query(msg)
                 id = 1
 
         if id is 1:
-            result = client[id].query(msg)
             if result == '' or result == ' ':
                 result = '*silent*'
                 error = False
