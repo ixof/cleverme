@@ -1,3 +1,9 @@
+About:
+	Python Translator between a Slack Channel using legacy API tokens,
+	Cleverbot.com's Official API using Redis for Conversation Retention,
+	and Cleverbot.io's API as a backup.
+
+
 Requirments:
    * Official Cleverbot API [ https://www.cleverbot.com/api// ]
 Optional Configuration:
