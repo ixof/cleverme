@@ -112,10 +112,10 @@ def cb_ask(msg, wdym_sent):
         else:
             error = False
 
-        return error, result
+        return error, wdym_sent, result
     except:
         print('-error-: Having trouble thinking for myself!')
-        return False, "I'm having trouble thinking for myself."
+        return False, wdym_sent, "I'm having trouble thinking for myself."
 
 
 def nap_time(energy, last_restore):
@@ -151,7 +151,7 @@ while True:
     newest_msg, newest_ts = newest_message(sc, last_ts)
     if newest_ts != last_ts:
         last_ts = newest_ts
-        error, result = cb_ask(newest_msg, wdym_sent)
+        error, wdym_sent, result = cb_ask(newest_msg, wdym_sent)
 
         if not error:
             slack_message(result)
