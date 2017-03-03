@@ -1,0 +1,29 @@
+Requirments:
+   * Official Cleverbot API [ https://www.cleverbot.com/api// ]
+Optional Configuration:
+   * cleverbot.io API [ https://cleverbot.io/keys ]
+    - Suggested as a fallback in the event your official cleverbot API has issues.
+   * redis server
+    - Required for Official Cleverbot API message Saving & Loading of conversations.
+
+Install //Ubuntu || Assuming you are logged in as root
+        apt-get install redis python git
+        pip install redis cleverwrap slackclient
+        adduser cleverme
+        su cleverme
+        cd ~/
+        git clone https://github.com/ixof/cleverme.git
+        cd cleverme
+        cp config.py.dist config.py
+        nano config.py
+
+Running //Testing
+        python main.py
+
+Running //Ubuntu Install
+        crontab -e
+        @reboot nohup python /home/cleverme/cleverme/main.py
+        CLTR+X, press Y, then press Enter
+
+Install #Note: You will need to edit config.py with the necessary information.
+Install #Note: For more redis support, check out https://www.digitalocean.com/community/tutorials/how-to-install-and-configure-redis-on-ubuntu-16-04

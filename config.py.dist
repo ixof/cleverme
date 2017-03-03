@@ -1,0 +1,19 @@
+# slack_token: https://api.slack.com/custom-integrations/legacy-tokens
+slack_token = ''
+slack_bot_id = ''
+slack_channel_id = ''
+slack_channel_name = ''
+
+# official_cleverbot: https://www.cleverbot.com/api/my-account/
+official_cleverbot = ''
+
+# redis_*: should be left default, only change if you know what you are doing!
+redis_host = 'localhost'
+redis_port = 6379
+redis_db = 0
+
+# cleverio_*: https://cleverbot.io/keys
+# cleverio_nick: can be left blank
+cleverio_user = ''
+cleverio_key = ''
+cleverio_nick = ''
