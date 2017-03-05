@@ -1,8 +1,6 @@
 # slack_token: https://api.slack.com/custom-integrations/legacy-tokens
 slack_token = ''
-slack_bot_id = ''
-slack_channel_id = ''
-slack_channel_name = ''
+slack_channel_name = '#random'
 
 # official_cleverbot: https://www.cleverbot.com/api/my-account/
 official_cleverbot = ''

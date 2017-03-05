@@ -5,7 +5,6 @@ import time
 from random import random
 from bisect import bisect
 from config import *
-import html
 import redis
 
 sc = SlackClient(slack_token)
@@ -13,8 +12,27 @@ client = [CleverWrap(official_cleverbot), clever.CleverBot(user=cleverio_user, k
 storage = redis.StrictRedis(host=redis_host, port=redis_port, db=redis_db)
 
 
+def slack_config():
+    # getting channel ID
+    channels = sc.api_call('channels.list')['channels']
+    slack_channel_id = ''
+    for channel in channels:
+        if channel['name'] in slack_channel_name:
+            slack_channel_id = channel['id']
+    # getting bot id
+    history = sc.api_call('channels.history', channel=slack_channel_id)
+    slack_bot_id = ''
+    for msg in history['messages']:
+        try:
+            if 'B' in msg['bot_id']:
+                slack_bot_id = msg['bot_id']
+        except:
+            pass
+    return slack_bot_id, slack_channel_id
+
+
 def weighted_choice(choices):
-	# https://stackoverflow.com/questions/3679694/a-weighted-version-of-random-choice/3679747#3679747
+    # https://stackoverflow.com/questions/3679694/a-weighted-version-of-random-choice/3679747#3679747
     values, weights = zip(*choices)
     total = 0
     cum_weights = []
@@ -27,14 +45,14 @@ def weighted_choice(choices):
 
 
 def save(storage):
-    try:
-        cs, convo_id = client[0].save()
-        storage.set('cs', cs)
-        storage.set('convo_id', convo_id)
-        return True
-    except:
-        print("Error saving conversation information.")
-        return False
+    #try:
+    cs, convo_id = client[0].save()
+    storage.set('cs', cs)
+    storage.set('convo_id', convo_id)
+    #    return True
+    #except:
+    #    print("Error saving conversation information.")
+    #    return False
 
 
 def load(storage):
@@ -48,7 +66,7 @@ def load(storage):
         return False
 
 
-def newest_message(sc, last_ts):
+def newest_message(sc, last_ts, slack_bot_id, slack_channel_id):
     msg_final = ''
     ts = 0
     while ts == 0:
@@ -131,10 +149,11 @@ def nap_time(energy, last_restore):
 
 
 def slack_message(message):
-    print('Reply: ' + str(html.unescape(''.join(message))))
-    sc.api_call("chat.postMessage", channel=slack_channel_name, text=str(html.unescape(''.join(message))))
+    print('Reply: ' + str(''.join(message)))
+    sc.api_call("chat.postMessage", channel=slack_channel_name, text=str(''.join(message)))
 
 
+slack_bot_id, slack_channel_id = slack_config()
 last_ts = 0
 wdym_sent = False
 error = False
@@ -144,7 +163,7 @@ last_restore = time.time()
 load(storage=storage)  # load cleverbot back from its previous state
 
 while True:
-    newest_msg, newest_ts = newest_message(sc, last_ts)
+    newest_msg, newest_ts = newest_message(sc, last_ts, slack_bot_id, slack_channel_id)
     if newest_ts != last_ts:
         last_ts = newest_ts
         error, wdym_sent, result = cb_ask(newest_msg, wdym_sent)
