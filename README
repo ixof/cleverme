@@ -29,12 +29,12 @@ Running //Testing
 		 //CTRL+C when you are done testing.//
         
 Running //Ubunut Start (headless)
-        nohup python /home/cleverme/cleverme/cleverme.py
+        nohup python /home/cleverme/cleverme/cleverme.py &
 
 Running //Ubuntu Install
         crontab -e
 		//add to the bottom of the crontab file the following line://
-        @reboot nohup python /home/cleverme/cleverme/cleverme.py
+        @reboot nohup python /home/cleverme/cleverme/cleverme.py &
         CLTR+X, press Y, then press Enter
 
 Install #Note: You will need to edit config.py with the necessary information.
