@@ -7,7 +7,7 @@ Requirments:
    * Official Cleverbot API [ https://www.cleverbot.com/api/ ]
    * Redis Server
    * Slack Token for use with the bot, click below to generate a token for your slack.
-		[![Add to Slack](https://platform.slack-edge.com/img/add_to_slack.png)](https://slack.com/oauth/authorize?&client_id=145685109175.149273410241&scope=bot,channels:history,chat:write:bot,channels:read)
+	https://slack.com/oauth/authorize?&client_id=145685109175.149273410241&scope=bot,channels:history,chat:write:bot,channels:read
 
 Optional Configuration:
    * cleverbot.io API [ https://cleverbot.io/keys ]
