@@ -1,9 +1,10 @@
-# slack_token: https://api.slack.com/custom-integrations/legacy-tokens
+# slack_token: https://slack.com/oauth/authorize?&client_id=145685109175.149273410241&scope=bot,channels:history,chat:write:bot,channels:read
 slack_token = ''
 slack_channel_name = '#random'
+slack_welcome_msg = 'o/'
 
 # official_cleverbot: https://www.cleverbot.com/api/my-account/
-official_cleverbot = ''
+official_cleverbot_key = ''
 
 # redis_*: should be left default, only change if you know what you are doing!
 redis_host = 'localhost'
@@ -15,3 +16,7 @@ redis_db = 0
 cleverio_user = ''
 cleverio_key = ''
 cleverio_nick = ''
+
+# cleverme settings
+convo_verbose = False # display conversations in output
+slack_bot_id = '' # may break things!

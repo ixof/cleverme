@@ -8,26 +8,34 @@ from config import *
 import redis
 
 sc = SlackClient(slack_token)
-client = [CleverWrap(official_cleverbot), clever.CleverBot(user=cleverio_user, key=cleverio_key, nick=cleverio_nick)]
+client = [CleverWrap(official_cleverbot_key), clever.CleverBot(user=cleverio_user, key=cleverio_key, nick=cleverio_nick)]
 storage = redis.StrictRedis(host=redis_host, port=redis_port, db=redis_db)
 
 
-def slack_config():
+def slack_config(sc, slack_bot_id=''):
     # getting channel ID
     channels = sc.api_call('channels.list')['channels']
     slack_channel_id = ''
     for channel in channels:
         if channel['name'] in slack_channel_name:
             slack_channel_id = channel['id']
+            break
+
+    if len(slack_welcome_msg) > 0:
+        slack_message(slack_welcome_msg)
+
     # getting bot id
-    history = sc.api_call('channels.history', channel=slack_channel_id)
-    slack_bot_id = ''
-    for msg in history['messages']:
-        try:
-            if 'B' in msg['bot_id']:
-                slack_bot_id = msg['bot_id']
-        except:
-            pass
+    if len(slack_bot_id) is 0:
+        result = sc.api_call('channels.history', channel=slack_channel_id)
+        slack_bot_id = ''
+        for msg in result['messages']:
+            try:
+                if 'B' in msg['bot_id']:
+                    slack_bot_id = msg['bot_id']
+                    break
+            except:
+                pass
+
     return slack_bot_id, slack_channel_id
 
 
@@ -45,14 +53,14 @@ def weighted_choice(choices):
 
 
 def save(storage):
-    #try:
-    cs, convo_id = client[0].save()
-    storage.set('cs', cs)
-    storage.set('convo_id', convo_id)
-    #    return True
-    #except:
-    #    print("Error saving conversation information.")
-    #    return False
+    try:
+        cs, convo_id = client[0].save()
+        storage.set('cs', cs)
+        storage.set('convo_id', convo_id)
+        return True
+    except:
+        verbosity("Error saving conversation information.")
+        return False
 
 
 def load(storage):
@@ -62,11 +70,11 @@ def load(storage):
         client[0].load(cs=cs, convo_id=convo_id)
         return True
     except:
-        print("Error loading previous conversation.")
+        verbosity("Error loading previous conversation.")
         return False
 
 
-def newest_message(sc, last_ts, slack_bot_id, slack_channel_id):
+def newest_message(sc, slack_bot_id, slack_channel_id):
     msg_final = ''
     ts = 0
     while ts == 0:
@@ -87,7 +95,7 @@ def newest_message(sc, last_ts, slack_bot_id, slack_channel_id):
                     ts = msg['ts']
                     break
         except:
-            print('Unable to get newest message from slack!')
+            verbosity('Unable to get newest message from slack!')
             pass
         time.sleep(1)
 
@@ -95,9 +103,8 @@ def newest_message(sc, last_ts, slack_bot_id, slack_channel_id):
 
 
 def cb_ask(msg, wdym_sent):
-    print('Asking: ' + msg)
+    verbosity('Asking: ' + msg)
     try:
-        # id = weighted_choice([(0, 90), (1, 10)])
         id = 0
         result = 'I have not an answer for you...'
         error = False
@@ -128,7 +135,7 @@ def cb_ask(msg, wdym_sent):
 
         return error, wdym_sent, result
     except:
-        print('-error-: Having trouble thinking for myself!')
+        verbosity('-error-: Having trouble thinking for myself!')
         return False, wdym_sent, "I'm having trouble thinking for myself."
 
 
@@ -149,11 +156,15 @@ def nap_time(energy, last_restore):
 
 
 def slack_message(message):
-    print('Reply: ' + str(''.join(message)))
+    verbosity('Reply: ' + str(''.join(message)))
     sc.api_call("chat.postMessage", channel=slack_channel_name, text=str(''.join(message)))
 
 
-slack_bot_id, slack_channel_id = slack_config()
+def verbosity(msg):
+    if convo_verbose:
+        print(msg)
+
+slack_bot_id, slack_channel_id = slack_config(sc, slack_bot_id)
 last_ts = 0
 wdym_sent = False
 error = False
@@ -163,7 +174,7 @@ last_restore = time.time()
 load(storage=storage)  # load cleverbot back from its previous state
 
 while True:
-    newest_msg, newest_ts = newest_message(sc, last_ts, slack_bot_id, slack_channel_id)
+    newest_msg, newest_ts = newest_message(sc, slack_bot_id, slack_channel_id)
     if newest_ts != last_ts:
         last_ts = newest_ts
         error, wdym_sent, result = cb_ask(newest_msg, wdym_sent)
@@ -173,4 +184,4 @@ while True:
             save(storage=storage)  # save current conversation
             energy, last_restore = nap_time(energy, last_restore)
     else:
-        time.sleep(3)
+        time.sleep(1)
