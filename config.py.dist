@@ -19,7 +19,7 @@ cleverio_nick = ''
 
 # advanced settings
 convo_verbose = True
-debug_varbose = False
+debug_verbose = False
 slack_bot_id = ''
 slack_bot_user = ''
 

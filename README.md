@@ -9,6 +9,9 @@ Requirments:
 
     - The username you set when creating your token is NOT the slack_bot_user in the config.py!
 
+    - After you save the settings for yor bot, you will need to invite the bot into your channel.
+        - The bot does _NOT_ auto-join this channel. It must be invited!
+
    * Cleverbot API [ https://www.cleverbot.com/api/ ]
 
 
