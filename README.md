@@ -1,3 +1,5 @@
+<p align="center">![icon](cleverme-icon.png)</p>
+
 About:
 	Python Translator between a Slack Channel and Cleverbot.com's API
 	using Redis for Conversation Retention and Cleverbot.io's API as a backup.
@@ -8,9 +10,6 @@ Requirments:
    * Slack Token [ https://my.slack.com/services/new/bot )
 
     - The username you set when creating your token is NOT the slack_bot_user in the config.py!
-
-    - After you save the settings for yor bot, you will need to invite the bot into your channel.
-        - The bot does _NOT_ auto-join this channel. It must be invited!
 
    * Cleverbot API [ https://www.cleverbot.com/api/ ]
 
@@ -54,7 +53,7 @@ Running //Testing
 
 Running //Ubunut Start (headless)
 
-        nohup python /home/cleverme/cleverme/cleverme.py &
+        nohup python /home/cleverme/cleverme/cleverme.py -d &
 
 
 Running //Ubuntu Install
@@ -63,7 +62,7 @@ Running //Ubuntu Install
 
         	###add to the bottom of the crontab file the following line:###
 
-        @reboot nohup python /home/cleverme/cleverme/cleverme.py &
+        @reboot nohup python /home/cleverme/cleverme/cleverme.py -d &
 
         	###CLTR+X, press Y, then press Enter###
 

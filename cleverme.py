@@ -6,6 +6,7 @@ from random import random
 from bisect import bisect
 from config import *
 import redis
+import sys
 
 print(str(time.time()) + ': Initializing CleverMe...')
 sc = SlackClient(slack_token)
@@ -203,15 +204,35 @@ last_restore = time.time()
 load(storage=storage)  # load cleverbot back from its previous state
 verbosity('Configuration Loaded! CleverMe is now running!')
 
-while True:
-    newest_msg, newest_ts = newest_message(sc, slack_bot_id, slack_bot_user, slack_channel_id, last_ts)
-    if newest_ts != last_ts:
-        last_ts = newest_ts
-        error, wdym_sent, result = cb_ask(newest_msg, wdym_sent)
 
-        if not error:
-            slack_message(result)
-            save(storage=storage)  # save current conversation
-            energy, last_restore = nap_time(energy, last_restore)
+def main_loop(wdym_sent, energy, last_restore, last_ts, daemon=True):
+    breakit = False
+    while daemon or not breakit:
+        newest_msg, newest_ts = newest_message(sc, slack_bot_id, slack_bot_user, slack_channel_id, last_ts)
+        if newest_ts != last_ts:
+            last_ts = newest_ts
+            error, wdym_sent, result = cb_ask(newest_msg, wdym_sent)
+
+            if not error:
+                slack_message(result)
+                save(storage=storage)  # save current conversation
+                energy, last_restore = nap_time(energy, last_restore)
+        else:
+            time.sleep(1)
+
+        if not daemon:
+            breakit = True
+
+try:
+    if len(sys.argv) is 2:
+        print(sys.argv[1])
+        if '-d' in sys.argv[1]:
+            main_loop(wdym_sent, energy, last_restore, last_ts)
     else:
-        time.sleep(1)
+        main_loop(wdym_sent, energy, last_restore, last_ts, True)
+except KeyboardInterrupt:
+   pass
+except:
+    main_loop(wdym_sent, energy, last_restore, last_ts, True)
+finally:
+   del slack_bot_id, slack_bot_user, slack_channel_id, last_ts, wdym_sent, error, energy, last_restore
