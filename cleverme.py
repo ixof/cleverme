@@ -7,36 +7,41 @@ from bisect import bisect
 from config import *
 import redis
 
+print(str(time.time()) + ': Initializing CleverMe...')
 sc = SlackClient(slack_token)
 client = [CleverWrap(official_cleverbot_key), clever.CleverBot(user=cleverio_user, key=cleverio_key, nick=cleverio_nick)]
 storage = redis.StrictRedis(host=redis_host, port=redis_port, db=redis_db)
+print(str(time.time()) + ': finished initializing.')
 
 
-def slack_config(sc, slack_bot_id=''):
+def slack_config(sc, slack_bot_id='', slack_bot_user=''):
     # getting channel ID
     channels = sc.api_call('channels.list')['channels']
+    verbosity(channels, True)
     slack_channel_id = ''
     for channel in channels:
         if channel['name'] in slack_channel_name:
             slack_channel_id = channel['id']
             break
+    del channels
 
     if len(slack_welcome_msg) > 0:
         slack_message(slack_welcome_msg)
 
     # getting bot id
-    if len(slack_bot_id) is 0:
+    if len(slack_bot_id) is 0 or len(slack_bot_user) is 0:
         result = sc.api_call('channels.history', channel=slack_channel_id)
-        slack_bot_id = ''
+        verbosity(result, True)
         for msg in result['messages']:
             try:
                 if 'B' in msg['bot_id']:
                     slack_bot_id = msg['bot_id']
+                    slack_bot_user = msg['user']
                     break
             except:
                 pass
-
-    return slack_bot_id, slack_channel_id
+        del result
+    return slack_bot_id, slack_bot_user, slack_channel_id
 
 
 def weighted_choice(choices):
@@ -59,7 +64,7 @@ def save(storage):
         storage.set('convo_id', convo_id)
         return True
     except:
-        verbosity("Error saving conversation information.")
+        verbosity("Error saving conversation information.", True)
         return False
 
 
@@ -70,32 +75,47 @@ def load(storage):
         client[0].load(cs=cs, convo_id=convo_id)
         return True
     except:
-        verbosity("Error loading previous conversation.")
+        verbosity("Error loading previous conversation.", True)
         return False
 
 
-def newest_message(sc, slack_bot_id, slack_channel_id):
+def newest_message(sc, slack_bot_id, slack_bot_user, slack_channel_id, last_ts=0):
     msg_final = ''
-    ts = 0
-    while ts == 0:
+    ts = last_ts
+    while ts == last_ts:
         try:
-            message = sc.api_call('channels.history', channel=slack_channel_id)
+            message = sc.api_call('channels.history', channel=slack_channel_id, count=1)
+            verbosity(message, True)
             for msg in message['messages']:
-                # print(msg)
+                skip = False
                 try:
-                    if msg['bot_id'] == slack_bot_id:
-                        # print(msg)
-                        pass
-                    if msg['subtype'] == 'file_share':
+                    if 'bot_message' in msg['subtype']:
+                        verbosity('.newest_message(): message from bot? True; skip? True', True)
+                        skip = True
+                except:
+                    pass
+                try:
+                    if slack_bot_id in msg['bot_id'] or slack_bot_user in msg['user']:
+                        verbosity('.neweest_message(): is bot message? True; skip? True', True)
+                        skip = True
+                except:
+                    pass
+                try:
+                    if msg['subtype'] == 'file_share' and not skip:
+                        verbosity('.newest_message(): is file? True; skip? False break? True', True)
                         msg_final = msg['file']['title']
                         ts = msg['ts']
                         break
                 except:
+                    pass
+
+                if not skip:
+                    verbosity('.newest_message(): is normal message? True', True)
                     msg_final = msg['text']
                     ts = msg['ts']
                     break
         except:
-            verbosity('Unable to get newest message from slack!')
+            verbosity('Unable to get newest message from slack!', True, True)
             pass
         time.sleep(1)
 
@@ -113,8 +133,12 @@ def cb_ask(msg, wdym_sent):
             try:
                 result = client[0].say(msg)
             except:
-                result = client[1].query(msg)
-                id = 1
+                verbosity('Unable to contact Cerverbot.com API!', True, True)
+                try:
+                    result = client[1].query(msg)
+                    id = 1
+                except:
+                    verbosity('Unable to contact Cleverbot.io API!!', True, True)
 
         if id is 1:
             if result == '' or result == ' ':
@@ -135,7 +159,7 @@ def cb_ask(msg, wdym_sent):
 
         return error, wdym_sent, result
     except:
-        verbosity('-error-: Having trouble thinking for myself!')
+        verbosity('-error-: Having trouble thinking for myself!', True, True)
         return False, wdym_sent, "I'm having trouble thinking for myself."
 
 
@@ -144,9 +168,12 @@ def nap_time(energy, last_restore):
     if last_restore <= (time.time()-(60*60)):
         last_restore = time.time()
         energy = 100
+        verbosity('.nap_time(): resetting energy', True)
     elif energy == 0:
         slack_message("brb")
-        time.sleep(weighted_choice([(300, 5), (120, 15), (60, 25), (30, 50), (25, 25), (15, 5)]))
+        sleep_for = weighted_choice([(60, 25), (30, 50), (25, 25), (15, 5)])
+        time.sleep(sleep_for)
+        verbosity('.nap_time(): sleeping for ' + str(sleep_for), True)
         slack_message("back")
         last_restore = time.time()
         energy = 100
@@ -157,14 +184,16 @@ def nap_time(energy, last_restore):
 
 def slack_message(message):
     verbosity('Reply: ' + str(''.join(message)))
-    sc.api_call("chat.postMessage", channel=slack_channel_name, text=str(''.join(message)))
+    slack_message_result = sc.api_call("chat.postMessage", channel=slack_channel_name, text=str(''.join(message)), as_user=True)
+    verbosity(slack_message_result, True)
 
 
-def verbosity(msg):
-    if convo_verbose:
-        print(msg)
+def verbosity(msg, debug=False, error=False):
+    if (debug_verbose and debug) or error or (convo_verbose and not debug):
+        print(str(time.time()) + ': ' + str(msg))
 
-slack_bot_id, slack_channel_id = slack_config(sc, slack_bot_id)
+verbosity('Loading configuration...')
+slack_bot_id, slack_bot_user, slack_channel_id = slack_config(sc, slack_bot_id, slack_bot_user)
 last_ts = 0
 wdym_sent = False
 error = False
@@ -172,9 +201,10 @@ energy = 100
 last_restore = time.time()
 
 load(storage=storage)  # load cleverbot back from its previous state
+verbosity('Configuration Loaded! CleverMe is now running!')
 
 while True:
-    newest_msg, newest_ts = newest_message(sc, slack_bot_id, slack_channel_id)
+    newest_msg, newest_ts = newest_message(sc, slack_bot_id, slack_bot_user, slack_channel_id, last_ts)
     if newest_ts != last_ts:
         last_ts = newest_ts
         error, wdym_sent, result = cb_ask(newest_msg, wdym_sent)

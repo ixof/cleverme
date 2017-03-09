@@ -1,9 +1,9 @@
-# slack_token: https://slack.com/oauth/authorize?&client_id=145685109175.149273410241&scope=bot,channels:history,chat:write:bot,channels:read
+# slack_token: https://my.slack.com/services/new/bot
 slack_token = ''
 slack_channel_name = '#random'
 slack_welcome_msg = 'o/'
 
-# official_cleverbot: https://www.cleverbot.com/api/my-account/
+# official_cleverbot: https://www.cleverbot.com/api
 official_cleverbot_key = ''
 
 # redis_*: should be left default, only change if you know what you are doing!
@@ -17,6 +17,11 @@ cleverio_user = ''
 cleverio_key = ''
 cleverio_nick = ''
 
-# cleverme settings
-convo_verbose = False # display conversations in output
-slack_bot_id = '' # may break things!
+# advanced settings
+convo_verbose = True
+debug_varbose = False
+slack_bot_id = ''
+slack_bot_user = ''
+
+# Note: To get your slack_bot_id and slack_bot_user, you will need to enable debug_varbose
+# Note!!! slack_bot_user is not the same value that you set when creating your bot for CleverMe! This is a unique value.
