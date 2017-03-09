@@ -1,4 +1,4 @@
-<p align="center">![icon](cleverme-icon.png)</p>
+<p align="center"><img src="cleverme-icon.png" width="128"></p>
 
 About:
 	Python Translator between a Slack Channel and Cleverbot.com's API
