@@ -225,14 +225,16 @@ def main_loop(wdym_sent, energy, last_restore, last_ts, daemon=True):
 
 try:
     if len(sys.argv) is 2:
-        print(sys.argv[1])
         if '-d' in sys.argv[1]:
+            verosity('Daemon is staring.', True, True)
             main_loop(wdym_sent, energy, last_restore, last_ts)
     else:
+        verosity('Daemon is not running. Single run mode.', True, True)
         main_loop(wdym_sent, energy, last_restore, last_ts, True)
 except KeyboardInterrupt:
    pass
 except:
+    verosity('Daemon is not running. Single run mode.', True, True)
     main_loop(wdym_sent, energy, last_restore, last_ts, True)
 finally:
    del slack_bot_id, slack_bot_user, slack_channel_id, last_ts, wdym_sent, error, energy, last_restore
