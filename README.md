@@ -48,8 +48,6 @@ Running //Testing
 
         python cleverme.py
 
-        	###CTRL+C when you are done testing###
-
 
 Running //Ubunut Start (headless)
 
